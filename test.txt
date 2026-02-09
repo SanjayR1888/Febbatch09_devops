@@ -1,7 +1,2 @@
 Hello
 Sanjay, thanks for joining devops training!
-<<<<<<< HEAD
-hhii
-=======
-hi
->>>>>>> feature
