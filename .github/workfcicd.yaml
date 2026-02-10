@@ -1,0 +1,85 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build application
+        run: |
+          echo "Running build..."
+          mkdir -p artifact
+          echo "build output" > artifact/build.txt
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: artifact/
+
+  deploy-dev:
+    name: Deploy to Dev
+    needs: build
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: artifact/
+
+      - name: Deploy to Dev
+        run: |
+          echo "Deploying to DEV environment"
+          ls -l artifact/
+
+  deploy-uat:
+    name: Deploy to UAT
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    environment: uat
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: artifact/
+
+      - name: Deploy to UAT
+        run: |
+          echo "Deploying to UAT environment"
+          ls -l artifact/
+
+  deploy-prod:
+    name: Deploy to Prod
+    needs: deploy-uat
+    runs-on: ubuntu-latest
+    environment: prod
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: artifact/
+
+      - name: Deploy to Prod
+        run: |
+          echo "Deploying to PROD environment"
+          ls -l artifact/
